@@ -1,0 +1,9 @@
+{
+  "parent": "physical_camera:item/nikon_z8_z24_120_24",
+  "display": {
+    "gui": {
+      "rotation": [24, 150, 0],
+      "scale": [2, 2, 2]
+    }
+  }
+}

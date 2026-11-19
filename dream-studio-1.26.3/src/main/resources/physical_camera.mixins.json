@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.physicalcamera.mixin",
+  "plugin": "dev.physicalcamera.mixin.CameraMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["Z8HandsMixin", "Z8CameraFov", "Z8HudHandsMixin", "Z8IrisHandPassMixin", "Z8IrisHandFallbackMixin",
+    "DepthReadbackMixin", "Z8PhotoCullingMixin", "Z8IrisStillProjectionMixin", "PhotoTargetAttachments",
+    "DroppedCameraLightMixin", "DroppedCameraStateMixin", "FramedCameraMixin"],
+  "injectors": {"defaultRequire": 1}
+}

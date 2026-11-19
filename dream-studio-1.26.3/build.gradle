@@ -1,0 +1,29 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17.21'
+}
+
+version = '1.0.2'
+group = 'dev.physicalcamera'
+
+dependencies {
+    minecraft 'com.mojang:minecraft:26.3'
+    implementation 'net.fabricmc:fabric-loader:0.19.3'
+    implementation 'net.fabricmc.fabric-api:fabric-api:0.160.5+26.3'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.5.5'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+tasks.register('cameraCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.physicalcamera.CameraCheck'
+    args layout.buildDirectory.dir('camera-check').get().asFile.absolutePath
+}
+
+tasks.named('check') {
+    dependsOn cameraCheck
+}

@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.physicalcamera.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MinecraftTargetAccess",
+    "Z8GameRendererMixin",
+    "Z8HandsMixin",
+    "Z8HideHudMixin",
+    "Z8ModelRotationMixin",
+    "Z8IrisHandPassMixin",
+    "DroppedCameraLightMixin",
+    "FramedCameraMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

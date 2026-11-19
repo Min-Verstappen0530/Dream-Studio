@@ -1,0 +1,7 @@
+{
+  "oversized_in_gui": true,
+  "model": {
+    "type": "minecraft:model",
+    "model": "physical_camera:item/assembly_z8_mounted"
+  }
+}

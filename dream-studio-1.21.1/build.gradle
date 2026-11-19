@@ -1,0 +1,74 @@
+plugins {
+    id 'fabric-loom' version '1.15.5'
+}
+
+version = '1.0.2'
+group = 'dev.physicalcamera'
+
+def javaRtx = providers.gradleProperty('javaRtx').map { it.toBoolean() }.orElse(false).get()
+base.archivesName = javaRtx ? 'dream-studio-for-java-rtx' : 'dream-studio-for-1.21.1'
+
+tasks.named('processResources') {
+    inputs.property('javaRtx', javaRtx)
+    exclude 'assets/physical_camera/items/**', 'assets/physical_camera/shaders/core/viewfinder_copy.fsh'
+    doLast {
+        def metadata = destinationDir.toPath().resolve('fabric.mod.json').toFile()
+        def mod = new groovy.json.JsonSlurper().parse(metadata, 'UTF-8')
+        def mixinFile = destinationDir.toPath().resolve('physical_camera.mixins.json').toFile()
+        def mixins = new groovy.json.JsonSlurper().parse(mixinFile, 'UTF-8')
+        if (javaRtx) {
+            mod.depends['rtx-remix-renderer'] = '0.1.1-202611060211-7d2ba9f'
+            mod.breaks = [iris: '*', sodium: '*']
+            mod.remove('suggests')
+            mixins.client.remove('Z8IrisHandPassMixin')
+            mixins.client.addAll(['RemixFrameMixin', 'RemixColourMixin',
+                    'RemixItemRendererMixin', 'RemixCameraVerticesMixin', 'RemixCameraShellMixin'])
+        } else {
+            mod.breaks = ['rtx-remix-renderer': '*']
+        }
+        fileTree(destinationDir.toPath().resolve('assets/physical_camera/models/item')).matching {
+            include '*.json'
+        }.each { file ->
+            def model = new groovy.json.JsonSlurper().parse(file, 'UTF-8')
+            boolean changed = false
+            model.elements?.each { element ->
+                def rotation = element.rotation
+                if (rotation != null && !(rotation.angle == 0 || rotation.angle.abs() in [22.5, 45])) {
+                    rotation.dream_studio_rotation = true
+                    changed = true
+                }
+            }
+            if (changed) file.setText(groovy.json.JsonOutput.toJson(model) + '\n', 'UTF-8')
+        }
+        metadata.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mod)) + '\n', 'UTF-8')
+        mixinFile.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mixins)) + '\n', 'UTF-8')
+    }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.16.5'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.10+1.21.1'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
+tasks.register('cameraCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.physicalcamera.CameraCheck'
+    args layout.buildDirectory.dir('camera-check').get().asFile.absolutePath
+}
+
+tasks.named('check') {
+    dependsOn cameraCheck
+}
+
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+}
